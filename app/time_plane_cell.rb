@@ -60,6 +60,6 @@ private
 
   def update_time_label
     time = Time.now.getlocal(@time_zone.secondsFromGMT)
-    @time_label.text = "#{time.hour}:#{time.min}"
+    @time_label.text = time.strftime "%k:%M"
   end
 end
