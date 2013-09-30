@@ -34,10 +34,12 @@ class TimePlaneCell < UITableViewCell
       UIView.animateWithDuration(0.2, delay:0.0, options:UIViewAnimationOptionCurveEaseInOut, animations:lambda {
         frame = @time_view.frame;
 
+        width = Device.screen.width_for_orientation
+
         if (editing)
-          @time_view.setFrame([[40, frame.origin.y], [240, frame.size.height]])
+          @time_view.setFrame([[40, frame.origin.y], [width - 80, frame.size.height]])
         else
-          @time_view.setFrame([[0, frame.origin.y], [320, frame.size.height]])
+          @time_view.setFrame([[0, frame.origin.y], [width, frame.size.height]])
         end
 
         @time_view.setNeedsDisplay
