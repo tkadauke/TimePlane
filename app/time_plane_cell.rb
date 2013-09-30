@@ -20,9 +20,7 @@ class TimePlaneCell < UITableViewCell
     @time_view.time_zone = @time_zone
   end
 
-  def offset=(value)
-    @time_view.offset = value
-  end
+  delegate :offset=, :zoom=, :to => '@time_view'
 
   def setEditing(editing, animated:animated)
     super
