@@ -26,7 +26,7 @@ class TimeView < UIView
     pixel_per_minute = @slot_width.to_f / 60.0
 
     time = current_time
-    time = time.advance(:hours => -(hours + 1))
+    time = time.advance(:hours => -(hours + num_slots / 2 + 1))
 
     shift -= time.min * pixel_per_minute
 
@@ -53,11 +53,12 @@ class TimeView < UIView
       time = time.advance(:hours => 1)
     end
 
-    if offset > 0 && offset < 320
+    marker = offset + half_screen_width
+    if marker > 0 && marker < 320
       CGContextSetLineWidth(context, 1.0)
       CGContextSetStrokeColorWithColor(context, UIColor.redColor.CGColor)
-      CGContextMoveToPoint(context, offset, 0)
-      CGContextAddLineToPoint(context, offset, 80)
+      CGContextMoveToPoint(context, marker, 0)
+      CGContextAddLineToPoint(context, marker, 80)
       CGContextStrokePath(context)
     end
   end
@@ -89,5 +90,9 @@ class TimeView < UIView
 
   def num_slots
     Device.screen.width / @slot_width
+  end
+
+  def half_screen_width
+    Device.screen.width / 2.0
   end
 end

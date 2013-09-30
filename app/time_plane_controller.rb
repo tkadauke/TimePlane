@@ -59,9 +59,11 @@ class TimePlaneController < UITableViewController
   def pinchHandler(sender)
     if sender.state == UIGestureRecognizerStateChanged
       @zoom = @prev_zoom * sender.scale
+      @offset = @prev_offset * clip_zoom(@zoom) / @prev_zoom
       zoom_cells
     elsif sender.state == UIGestureRecognizerStateEnded || sender.state == UIGestureRecognizerStateCancelled
       @prev_zoom = clip_zoom(@zoom)
+      @prev_offset = @offset
     end
   end
 
@@ -134,7 +136,7 @@ class TimePlaneController < UITableViewController
   end
 
   def now
-    @offset = @prev_offset = Device.screen.width / 2.0
+    @offset = @prev_offset = 0
     scroll_cells
   end
 
@@ -154,6 +156,7 @@ protected
   def zoom_cells
     clipped = clip_zoom(@zoom)
     each_cell do |cell|
+      cell.offset = @offset
       cell.zoom = clipped
     end
   end
