@@ -9,8 +9,10 @@ class TimePlaneCell < UITableViewCell
 
     layout self, :cell do
       @name_label = subview(UILabel, :name)
-      @time_view = subview(TimeView, :time)
+      @time_label = subview(UILabel, :time)
+      @time_view = subview(TimeView, :timeline)
     end
+
     self
   end
 
@@ -18,6 +20,9 @@ class TimePlaneCell < UITableViewCell
     @time_zone = value
     @name_label.text = value.name.gsub('_', ' ')
     @time_view.time_zone = @time_zone
+
+    update_time_label
+    start_timer
   end
 
   delegate :offset=, :zoom=, :to => '@time_view'
@@ -38,5 +43,20 @@ class TimePlaneCell < UITableViewCell
         @time_view.setNeedsDisplay
       }, completion:nil)
     end
+  end
+
+  def start_timer
+    NSTimer.scheduledTimerWithTimeInterval(1, target:self, selector:"tick:", userInfo:nil, repeats:true)
+  end
+
+  def tick(timer)
+    if Time.now.sec == 0
+      update_time_label
+    end
+  end
+
+  def update_time_label
+    time = Time.now.getlocal(@time_zone.secondsFromGMT)
+    @time_label.text = "#{time.hour}:#{time.min}"
   end
 end
