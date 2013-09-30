@@ -14,7 +14,6 @@ Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
   app.name = 'TimePlane'
   app.deployment_target = '6.0'
-  app.interface_orientations = [:portrait]
 
   app.identifier = 'de.furrylabs.TimePlane'
 

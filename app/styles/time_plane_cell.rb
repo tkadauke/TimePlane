@@ -21,6 +21,7 @@ Teacup::Stylesheet.new :time_plane_cell do
     height: 20
 
   style :timeline,
+    autoresizingMask: UIViewAutoresizingFlexibleWidth,
     left: 0,
     top: 25,
     width: lambda { superview.bounds.size.width },

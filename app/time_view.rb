@@ -36,11 +36,8 @@ class TimeView < UIView
       else
         CGContextSetLineWidth(context, 1.0)
       end
-      
-      CGContextMoveToPoint(context, i * @slot_width + shift, 0)
-      CGContextAddLineToPoint(context, i * @slot_width + shift, 80)
 
-      CGContextStrokePath(context)
+      draw_line(context, i * @slot_width + shift, 0, i * @slot_width + shift, 80)
 
       string = time.hour.to_s
       string.drawAtPoint(CGPointMake(i * @slot_width + 10 + shift, 5), withFont:UIFont.systemFontOfSize(14))
@@ -50,16 +47,28 @@ class TimeView < UIView
         string.drawAtPoint(CGPointMake(i * @slot_width + 10 + shift, 50), withFont:UIFont.boldSystemFontOfSize(14))
       end
 
+      if @slot_width > 60
+        CGContextSetLineWidth(context, 1.0)
+
+        half_slot = @slot_width / 2.0
+        draw_line(context, i * @slot_width + shift + half_slot, 10, i * @slot_width + shift + half_slot, 80)
+
+        if @slot_width > 100
+          quarter_slot = @slot_width / 4.0
+          draw_line(context, i * @slot_width + shift + quarter_slot, 20, i * @slot_width + shift + quarter_slot, 80)
+          draw_line(context, i * @slot_width + shift + half_slot + quarter_slot, 20, i * @slot_width + shift + half_slot + quarter_slot, 80)
+        end
+      end
+
       time = time.advance(:hours => 1)
     end
 
     marker = offset + half_screen_width
-    if marker > 0 && marker < 320
+    if marker > 0 && marker < Device.screen.width_for_orientation
       CGContextSetLineWidth(context, 1.0)
       CGContextSetStrokeColorWithColor(context, UIColor.redColor.CGColor)
-      CGContextMoveToPoint(context, marker, 0)
-      CGContextAddLineToPoint(context, marker, 80)
-      CGContextStrokePath(context)
+
+      draw_line(context, marker, 0, marker, 80)
     end
   end
 
@@ -74,10 +83,6 @@ class TimeView < UIView
     self.setNeedsDisplay
   end
 
-  def current_time
-    Time.now.getlocal(@time_zone.secondsFromGMT)
-  end
-
   def start_timer
     NSTimer.scheduledTimerWithTimeInterval(1, target:self, selector:"tick:", userInfo:nil, repeats:true)
   end
@@ -88,11 +93,23 @@ class TimeView < UIView
     end
   end
 
+private
+  def current_time
+    Time.now.getlocal(@time_zone.secondsFromGMT)
+  end
+
+  def draw_line(context, x1, y1, x2, y2)
+    CGContextMoveToPoint(context, x1, y1)
+    CGContextAddLineToPoint(context, x2, y2)
+
+    CGContextStrokePath(context)
+  end
+
   def num_slots
-    Device.screen.width / @slot_width
+    Device.screen.width_for_orientation / @slot_width
   end
 
   def half_screen_width
-    Device.screen.width / 2.0
+    Device.screen.width_for_orientation / 2.0
   end
 end
