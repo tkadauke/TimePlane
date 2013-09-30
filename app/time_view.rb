@@ -18,17 +18,39 @@ class TimeView < UIView
     CGContextSetFillColorWithColor(context, UIColor.whiteColor.CGColor)
     CGContextFillRect(context, rect)
 
+    hours = offset / @slot_width
+
+    time = current_time.beginning_of_hour
+    time = time.advance(:hours => -(hours + num_slots / 2 + 1).to_i)
+
+    loc = self.location
+    if loc
+      (-1..2).to_a.each do |date_offset|
+        CGContextSetFillColorWithColor(context, "#ffffec".to_color.CGColor)
+        date = time.to_date + date_offset
+        sunrise = Sunrise.sunrise(date, loc)
+        sunset = Sunrise.sunset(date, loc)
+
+        if sunrise.is_a?(Symbol) || sunset.is_a?(Symbol)
+          if sunrise.to_s == 'up_all_day'
+            day = date.to_time.getlocal(@time_zone.secondsFromGMT)
+            x1 = x_coordinate_for(day.beginning_of_day)
+            x2 = x_coordinate_for(day.end_of_day)
+
+            CGContextFillRect(context, CGRectMake(x1, 0, x2-x1, self.frame.size.height))
+          end
+        else
+          x1 = x_coordinate_for(sunrise)
+          x2 = x_coordinate_for(sunset)
+
+          CGContextFillRect(context, CGRectMake(x1, 0, x2-x1, self.frame.size.height))
+        end
+      end
+    end
+
     CGContextSetStrokeColorWithColor(context, UIColor.blackColor.CGColor)
 
     CGContextSetFillColorWithColor(context, UIColor.blackColor.CGColor)
-
-    hours, shift = offset.divmod(@slot_width)
-    pixel_per_minute = @slot_width.to_f / 60.0
-
-    time = current_time
-    time = time.advance(:hours => -(hours + num_slots / 2 + 1))
-
-    shift -= time.min * pixel_per_minute
 
     (-1..num_slots + 1).to_a.each do |i|
       if time.hour == 0
@@ -37,33 +59,35 @@ class TimeView < UIView
         CGContextSetLineWidth(context, 1.0)
       end
 
-      draw_line(context, i * @slot_width + shift, 0, i * @slot_width + shift, 80)
+      x = x_coordinate_for(time)
+
+      draw_line(context, x, 0, x, 80)
 
       string = time.hour.to_s
-      string.drawAtPoint(CGPointMake(i * @slot_width + 10 + shift, 5), withFont:UIFont.systemFontOfSize(14))
+      string.drawAtPoint(CGPointMake(x + 10, 5), withFont:UIFont.systemFontOfSize(14))
 
       if time.hour == 0
         string = time.day.to_s
-        string.drawAtPoint(CGPointMake(i * @slot_width + 10 + shift, 50), withFont:UIFont.boldSystemFontOfSize(14))
+        string.drawAtPoint(CGPointMake(x + 10, 50), withFont:UIFont.boldSystemFontOfSize(14))
       end
 
       if @slot_width > 60
         CGContextSetLineWidth(context, 1.0)
 
         half_slot = @slot_width / 2.0
-        draw_line(context, i * @slot_width + shift + half_slot, 10, i * @slot_width + shift + half_slot, 80)
+        draw_line(context, x + half_slot, 10, x + half_slot, 80)
 
         if @slot_width > 100
           quarter_slot = @slot_width / 4.0
-          draw_line(context, i * @slot_width + shift + quarter_slot, 20, i * @slot_width + shift + quarter_slot, 80)
-          draw_line(context, i * @slot_width + shift + half_slot + quarter_slot, 20, i * @slot_width + shift + half_slot + quarter_slot, 80)
+          draw_line(context, x + quarter_slot, 20, x + quarter_slot, 80)
+          draw_line(context, x + half_slot + quarter_slot, 20, x + half_slot + quarter_slot, 80)
         end
       end
 
       time = time.advance(:hours => 1)
     end
 
-    marker = offset + half_screen_width
+    marker = x_coordinate_for(current_time)
     if marker > 0 && marker < Device.screen.width_for_orientation
       CGContextSetLineWidth(context, 1.0)
       CGContextSetStrokeColorWithColor(context, UIColor.redColor.CGColor)
@@ -93,7 +117,7 @@ class TimeView < UIView
     end
   end
 
-private
+protected
   def current_time
     Time.now.getlocal(@time_zone.secondsFromGMT)
   end
@@ -111,5 +135,18 @@ private
 
   def half_screen_width
     Device.screen.width_for_orientation / 2.0
+  end
+
+  def x_coordinate_for(time)
+    half_screen_width + (time - current_time) / 60 * pixel_per_minute + offset
+  end
+
+  def pixel_per_minute
+    @slot_width.to_f / 60.0
+  end
+
+  def location
+    coords = TIME_ZONE_LOCATIONS[time_zone.name.to_s]
+    Sunrise::Location.new(coords.first.to_f, coords.last.to_f) if coords
   end
 end
