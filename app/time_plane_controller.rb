@@ -125,6 +125,7 @@ class TimePlaneController < UITableViewController
     @editing = true
     tableView.setEditing true, animated:true
     @pan.enabled = false
+    @pinch.enabled = false
     self.navigationItem.setRightBarButtonItems [@plus_button, @done_button]
   end
 
@@ -132,6 +133,7 @@ class TimePlaneController < UITableViewController
     @editing = false
     tableView.setEditing false, animated:true
     @pan.enabled = true
+    @pinch.enabled = true
     self.navigationItem.setRightBarButtonItems [@plus_button, @edit_button]
   end
 
