@@ -23,6 +23,7 @@ class TimePlaneCell < UITableViewCell
 
     update_time_label
     start_timer
+    resize_time_view
   end
 
   delegate :offset=, :zoom=, :to => '@time_view'
@@ -32,18 +33,10 @@ class TimePlaneCell < UITableViewCell
 
     if (animated)
       UIView.animateWithDuration(0.2, delay:0.0, options:UIViewAnimationOptionCurveEaseInOut, animations:lambda {
-        frame = @time_view.frame;
-
-        width = Device.screen.width_for_orientation
-
-        if (editing)
-          @time_view.setFrame([[40, frame.origin.y], [width - 80, frame.size.height]])
-        else
-          @time_view.setFrame([[0, frame.origin.y], [width, frame.size.height]])
-        end
-
-        @time_view.setNeedsDisplay
+        resize_time_view
       }, completion:nil)
+    else
+      resize_time_view
     end
   end
 
@@ -61,5 +54,18 @@ private
   def update_time_label
     time = Time.now.getlocal(@time_zone.secondsFromGMT)
     @time_label.text = time.strftime "%k:%M"
+  end
+
+  def resize_time_view
+    frame = @time_view.frame
+    width = Device.screen.width_for_orientation
+
+    if isEditing
+      @time_view.setFrame([[40, frame.origin.y], [width - 80, frame.size.height]])
+    else
+      @time_view.setFrame([[0, frame.origin.y], [width, frame.size.height]])
+    end
+
+    @time_view.setNeedsDisplay
   end
 end
