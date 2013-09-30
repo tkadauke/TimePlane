@@ -75,6 +75,7 @@ class TimePlaneController < UITableViewController
     fresh_cell.tap do |cell|
       cell.time_zone = @time_zones[indexPath.row]
       cell.offset = @offset
+      cell.zoom = clip_zoom(@zoom)
     end
   end
 
