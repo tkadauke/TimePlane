@@ -47,14 +47,15 @@ class TimePlaneCell < UITableViewCell
     end
   end
 
-  def start_timer
-    NSTimer.scheduledTimerWithTimeInterval(1, target:self, selector:"tick:", userInfo:nil, repeats:true)
-  end
-
   def tick(timer)
     if Time.now.sec == 0
       update_time_label
     end
+  end
+
+private
+  def start_timer
+    NSTimer.scheduledTimerWithTimeInterval(1, target:self, selector:"tick:", userInfo:nil, repeats:true)
   end
 
   def update_time_label
