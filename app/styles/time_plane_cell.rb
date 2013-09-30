@@ -4,6 +4,7 @@ Teacup::Stylesheet.new :time_plane_cell do
   style :name,
     font: UIFont.boldSystemFontOfSize(17.0),
     textColor: UIColor.blackColor,
+    backgroundColor: UIColor.clearColor,
     autoresizingMask: UIViewAutoresizingFlexibleWidth,
     left: 10,
     top: 3,
@@ -13,6 +14,7 @@ Teacup::Stylesheet.new :time_plane_cell do
   style :time,
     font: UIFont.systemFontOfSize(17.0),
     textColor: UIColor.blackColor,
+    backgroundColor: UIColor.clearColor,
     autoresizingMask: UIViewAutoresizingFlexibleWidth,
     textAlignment: UITextAlignmentRight,
     left: lambda { superview.bounds.size.width - 60 },
@@ -23,7 +25,7 @@ Teacup::Stylesheet.new :time_plane_cell do
   style :timeline,
     autoresizingMask: UIViewAutoresizingFlexibleWidth,
     left: 0,
-    top: 25,
+    top: 0,
     width: lambda { superview.bounds.size.width },
-    height: 75
+    height: 100
 end

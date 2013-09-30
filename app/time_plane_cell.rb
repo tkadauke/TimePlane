@@ -8,9 +8,9 @@ class TimePlaneCell < UITableViewCell
     self.selectionStyle = UITableViewCellSelectionStyleNone
 
     layout self, :cell do
+      @time_view = subview(TimeView, :timeline)
       @name_label = subview(UILabel, :name)
       @time_label = subview(UILabel, :time)
-      @time_view = subview(TimeView, :timeline)
     end
 
     self

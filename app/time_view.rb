@@ -37,7 +37,7 @@ class TimeView < UIView
             x1 = x_coordinate_for(day.beginning_of_day)
             x2 = x_coordinate_for(day.end_of_day)
 
-            CGContextFillRect(context, CGRectMake(x1, 0, x2-x1, self.frame.size.height))
+            CGContextFillRect(context, CGRectMake(x1, 25, x2-x1, self.frame.size.height))
 
             break if x1 > Device.screen.width_for_orientation
           end
@@ -45,7 +45,7 @@ class TimeView < UIView
           x1 = x_coordinate_for(sunrise)
           x2 = x_coordinate_for(sunset)
 
-          CGContextFillRect(context, CGRectMake(x1, 0, x2-x1, self.frame.size.height))
+          CGContextFillRect(context, CGRectMake(x1, 25, x2-x1, self.frame.size.height))
 
           break if x1 > Device.screen.width_for_orientation
         end
@@ -65,26 +65,26 @@ class TimeView < UIView
         CGContextSetLineWidth(context, 1.0)
       end
 
-      draw_line(context, x, 0, x, 80)
+      draw_line(context, x, 25, x, 100)
 
       string = time.hour.to_s
-      string.drawAtPoint(CGPointMake(x + 10, 5), withFont:UIFont.systemFontOfSize(14))
+      string.drawAtPoint(CGPointMake(x + 10, 30), withFont:UIFont.systemFontOfSize(14))
 
       if time.hour == 0
         string = time.day.to_s
-        string.drawAtPoint(CGPointMake(x + 10, 50), withFont:UIFont.boldSystemFontOfSize(14))
+        string.drawAtPoint(CGPointMake(x + 10, 75), withFont:UIFont.boldSystemFontOfSize(14))
       end
 
       if @slot_width > 60
         CGContextSetLineWidth(context, 1.0)
 
         half_slot = @slot_width / 2.0
-        draw_line(context, x + half_slot, 10, x + half_slot, 80)
+        draw_line(context, x + half_slot, 35, x + half_slot, 100)
 
         if @slot_width > 100
           quarter_slot = @slot_width / 4.0
-          draw_line(context, x + quarter_slot, 20, x + quarter_slot, 80)
-          draw_line(context, x + half_slot + quarter_slot, 20, x + half_slot + quarter_slot, 80)
+          draw_line(context, x + quarter_slot, 45, x + quarter_slot, 100)
+          draw_line(context, x + half_slot + quarter_slot, 45, x + half_slot + quarter_slot, 100)
         end
       end
 
@@ -97,7 +97,7 @@ class TimeView < UIView
       CGContextSetLineWidth(context, 1.0)
       CGContextSetStrokeColorWithColor(context, UIColor.redColor.CGColor)
 
-      draw_line(context, marker, 0, marker, 80)
+      draw_line(context, marker, 0, marker, 100)
     end
   end
 
