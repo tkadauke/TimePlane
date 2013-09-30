@@ -28,8 +28,8 @@ class TimeView < UIView
       (-1..2).to_a.each do |date_offset|
         CGContextSetFillColorWithColor(context, "#ffffec".to_color.CGColor)
         date = time.to_date + date_offset
-        sunrise = Sunrise.sunrise(date, loc)
-        sunset = Sunrise.sunset(date, loc)
+        sunrise = cached_sunrise(date, loc)
+        sunset = cached_sunset(date, loc)
 
         if sunrise.is_a?(Symbol) || sunset.is_a?(Symbol)
           if sunrise.to_s == 'up_all_day'
@@ -38,12 +38,16 @@ class TimeView < UIView
             x2 = x_coordinate_for(day.end_of_day)
 
             CGContextFillRect(context, CGRectMake(x1, 0, x2-x1, self.frame.size.height))
+
+            break if x1 > Device.screen.width_for_orientation
           end
         else
           x1 = x_coordinate_for(sunrise)
           x2 = x_coordinate_for(sunset)
 
           CGContextFillRect(context, CGRectMake(x1, 0, x2-x1, self.frame.size.height))
+
+          break if x1 > Device.screen.width_for_orientation
         end
       end
     end
@@ -52,14 +56,14 @@ class TimeView < UIView
 
     CGContextSetFillColorWithColor(context, UIColor.blackColor.CGColor)
 
+    x = x_coordinate_for(time)
+
     (-1..num_slots + 1).to_a.each do |i|
       if time.hour == 0
         CGContextSetLineWidth(context, 2.0)
       else
         CGContextSetLineWidth(context, 1.0)
       end
-
-      x = x_coordinate_for(time)
 
       draw_line(context, x, 0, x, 80)
 
@@ -85,6 +89,7 @@ class TimeView < UIView
       end
 
       time = time.advance(:hours => 1)
+      x += @slot_width
     end
 
     marker = x_coordinate_for(current_time)
@@ -94,6 +99,12 @@ class TimeView < UIView
 
       draw_line(context, marker, 0, marker, 80)
     end
+  end
+
+  def time_zone=(value)
+    @time_zone = value
+    @sunrises = {}
+    @sunsets = {}
   end
 
   def offset=(value)
@@ -148,5 +159,13 @@ protected
   def location
     coords = TIME_ZONE_LOCATIONS[time_zone.name.to_s]
     Sunrise::Location.new(coords.first.to_f, coords.last.to_f) if coords
+  end
+
+  def cached_sunrise(date, loc)
+    @sunrises[date.to_s] ||= Sunrise.sunrise(date, loc)
+  end
+
+  def cached_sunset(date, loc)
+    @sunsets[date.to_s] ||= Sunrise.sunset(date, loc)
   end
 end
