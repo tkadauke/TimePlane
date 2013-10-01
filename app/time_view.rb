@@ -20,8 +20,11 @@ class TimeView < UIView
 
     hours = offset / @slot_width
 
-    time = current_time.beginning_of_hour
+    time = current_time
+    time = time.getlocal(@time_zone.secondsFromGMTForDate(NSDate.dateWithTimeIntervalSince1970(time.to_i)))
+    time = time.beginning_of_hour
     time = time.advance(:hours => -(hours + num_slots / 2 + 1).to_i)
+    time = time.getutc
 
     loc = self.location
     if loc
@@ -57,9 +60,12 @@ class TimeView < UIView
     CGContextSetFillColorWithColor(context, UIColor.blackColor.CGColor)
 
     x = x_coordinate_for(time)
+    prev_hour = nil
 
     (-1..num_slots + 1).to_a.each do |i|
-      if time.hour == 0
+      local_time = time.getlocal(@time_zone.secondsFromGMTForDate(NSDate.dateWithTimeIntervalSince1970(time.to_i)))
+
+      if prev_hour && prev_hour + 1 != local_time.hour
         CGContextSetLineWidth(context, 2.0)
       else
         CGContextSetLineWidth(context, 1.0)
@@ -67,11 +73,13 @@ class TimeView < UIView
 
       draw_line(context, x, 25, x, 100)
 
-      string = time.hour.to_s
+      string = local_time.hour.to_s
       string.drawAtPoint(CGPointMake(x + 10, 30), withFont:UIFont.systemFontOfSize(14))
 
-      if time.hour == 0
-        string = time.day.to_s
+      prev_hour = local_time.hour
+
+      if local_time.hour == 0
+        string = local_time.day.to_s
         string.drawAtPoint(CGPointMake(x + 10, 75), withFont:UIFont.boldSystemFontOfSize(14))
       end
 
@@ -130,7 +138,7 @@ class TimeView < UIView
 
 protected
   def current_time
-    Time.now.getlocal(@time_zone.secondsFromGMT)
+    Time.now.getutc
   end
 
   def draw_line(context, x1, y1, x2, y2)
