@@ -9,6 +9,9 @@ rescue LoadError
 end
 
 require 'bubble-wrap/ui'
+require 'motion-support/core_ext/time'
+require 'motion-support/core_ext/module'
+require 'motion-support/core_ext/object'
 
 Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
