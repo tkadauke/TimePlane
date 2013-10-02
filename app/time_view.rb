@@ -21,16 +21,19 @@ class TimeView < UIView
     hours = offset / @slot_width
 
     time = current_time
-    time = time.getlocal(@time_zone.secondsFromGMTForDate(NSDate.dateWithTimeIntervalSince1970(time.to_i)))
+    time = to_local(time)
     time = time.beginning_of_hour
     time = time.advance(:hours => -(hours + num_slots / 2 + 1).to_i)
     time = time.getutc
 
     loc = self.location
     if loc
-      (-1..2).to_a.each do |date_offset|
+      start_date = to_local(time_for_x_coordinate(0)).to_date
+      end_date = to_local(time_for_x_coordinate(Device.screen.width_for_orientation)).to_date
+
+      (start_date..end_date).to_a.each do |date|
         CGContextSetFillColorWithColor(context, "#ffffec".to_color.CGColor)
-        date = time.to_date + date_offset
+
         sunrise = cached_sunrise(date, loc)
         sunset = cached_sunset(date, loc)
 
@@ -38,19 +41,17 @@ class TimeView < UIView
           if sunrise.to_s == 'up_all_day'
             day = date.to_time.getlocal(@time_zone.secondsFromGMT)
             x1 = x_coordinate_for(day.beginning_of_day)
+            break if x1 > Device.screen.width_for_orientation
             x2 = x_coordinate_for(day.end_of_day)
 
             CGContextFillRect(context, CGRectMake(x1, 25, x2-x1, self.frame.size.height))
-
-            break if x1 > Device.screen.width_for_orientation
           end
         else
           x1 = x_coordinate_for(sunrise)
+          break if x1 > Device.screen.width_for_orientation
           x2 = x_coordinate_for(sunset)
 
           CGContextFillRect(context, CGRectMake(x1, 25, x2-x1, self.frame.size.height))
-
-          break if x1 > Device.screen.width_for_orientation
         end
       end
     end
@@ -62,8 +63,14 @@ class TimeView < UIView
     x = x_coordinate_for(time)
     prev_hour = nil
 
-    (-1..num_slots + 1).to_a.each do |i|
-      local_time = time.getlocal(@time_zone.secondsFromGMTForDate(NSDate.dateWithTimeIntervalSince1970(time.to_i)))
+    while x < Device.screen.width_for_orientation
+      if x + @slot_width < 0
+        time = time.advance(:hours => 1)
+        x += @slot_width
+        next
+      end
+
+      local_time = to_cached_local(time)
 
       if prev_hour && prev_hour + 1 != local_time.hour
         CGContextSetLineWidth(context, 2.0)
@@ -113,6 +120,7 @@ class TimeView < UIView
     @time_zone = value
     @sunrises = {}
     @sunsets = {}
+    @times = {}
   end
 
   def offset=(value)
@@ -141,6 +149,14 @@ protected
     Time.now.getutc
   end
 
+  def to_local(time)
+    time.getlocal(@time_zone.secondsFromGMTForDate(NSDate.dateWithTimeIntervalSince1970(time.to_i)))
+  end
+
+  def to_cached_local(time)
+    @times[time.to_i] ||= time.getlocal(@time_zone.secondsFromGMTForDate(NSDate.dateWithTimeIntervalSince1970(time.to_i)))
+  end
+
   def draw_line(context, x1, y1, x2, y2)
     CGContextMoveToPoint(context, x1, y1)
     CGContextAddLineToPoint(context, x2, y2)
@@ -158,6 +174,10 @@ protected
 
   def x_coordinate_for(time)
     half_screen_width + (time - current_time) / 60 * pixel_per_minute + offset
+  end
+
+  def time_for_x_coordinate(x)
+    current_time + ((x - offset - half_screen_width) * 60 / pixel_per_minute).seconds
   end
 
   def pixel_per_minute
