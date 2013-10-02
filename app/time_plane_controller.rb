@@ -117,6 +117,7 @@ class TimePlaneController < UITableViewController
 
   def add_time_zone(time_zone)
     @time_zones << NSTimeZone.timeZoneWithName(time_zone)
+    @time_zones.uniq!
     tableView.reloadData
 
     save
