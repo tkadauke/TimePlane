@@ -32,7 +32,7 @@ class TimeView < UIView
       end_date = to_local(time_for_x_coordinate(Device.screen.width_for_orientation)).to_date
 
       (start_date..end_date).to_a.each do |date|
-        CGContextSetFillColorWithColor(context, "#ffffec".to_color.CGColor)
+        CGContextSetFillColorWithColor(context, "#fffdbe".to_color.CGColor)
 
         sunrise = cached_sunrise(date, loc)
         sunset = cached_sunset(date, loc)
@@ -81,7 +81,7 @@ class TimeView < UIView
       draw_line(context, x, 25, x, 100)
 
       string = local_time.hour.to_s
-      string.drawAtPoint(CGPointMake(x + 10, 30), withFont:UIFont.systemFontOfSize(14))
+      string.drawAtPoint(CGPointMake(x + 10, 35), withFont:UIFont.systemFontOfSize(14))
 
       prev_hour = local_time.hour
 
