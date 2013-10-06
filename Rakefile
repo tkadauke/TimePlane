@@ -18,6 +18,7 @@ Motion::Project::App.setup do |app|
   app.name = 'TimePlane'
   app.deployment_target = '6.0'
   app.device_family = [:iphone, :ipad]
+  app.version = '1.1'
 
   app.identifier = 'de.furrylabs.TimePlane'
 
