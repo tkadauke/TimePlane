@@ -1,3 +1,4 @@
+# Credit: http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-talk/264573
 module Sunrise
   class Location
     attr_accessor :latitude, :longitude, :offset
